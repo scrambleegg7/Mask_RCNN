@@ -1268,6 +1268,13 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     # Note that some boxes might be all zeros if the corresponding mask got cropped out.
     # and here is to filter them out
     _idx = np.sum(mask, axis=(0, 1)) > 0
+
+    print("## model / load_image_gt ##")
+    print(" image_id",image_id)
+    print(" idx ", _idx)
+    print(" class_ids ", class_ids)
+
+
     mask = mask[:, :, _idx]
     class_ids = class_ids[_idx]
     # Bounding boxes. Note that some boxes might be all zeros
@@ -2498,6 +2505,11 @@ class MaskRCNN():
         scores: [N] float probability scores for the class IDs
         masks: [H, W, N] instance binary masks
         """
+
+        print("## model detect length of images", len(images))
+        print("## model detect BATCH size", self.config.BATCH_SIZE  )
+        
+
         assert self.mode == "inference", "Create model in inference mode."
         assert len(
             images) == self.config.BATCH_SIZE, "len(images) must be equal to BATCH_SIZE"
