@@ -1264,8 +1264,8 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
 
     print("## model / load_image_gt ##")
     print(" image_id",image_id)
-    print(" idx ", _idx)
-    print(" class_ids ", class_ids)
+    #print(" idx ", _idx)
+    #print(" class_ids ", class_ids)
 
 
     mask = mask[:, :, _idx]
@@ -2177,7 +2177,8 @@ class MaskRCNN():
             if layer.output in self.keras_model.losses:
                 continue
             loss = (
-                tf.reduce_mean(layer.output, keepdims=True)
+                #tf.reduce_mean(layer.output, keepdims=True)
+                tf.reduce_mean(layer.output, keep_dims=True)
                 * self.config.LOSS_WEIGHTS.get(name, 1.))
             self.keras_model.add_loss(loss)
 
@@ -2201,7 +2202,7 @@ class MaskRCNN():
             layer = self.keras_model.get_layer(name)
             self.keras_model.metrics_names.append(name)
             loss = (
-                tf.reduce_mean(layer.output, keepdims=True)
+                tf.reduce_mean(layer.output, keep_dims=True)
                 * self.config.LOSS_WEIGHTS.get(name, 1.))
             self.keras_model.metrics_tensors.append(loss)
 
@@ -2498,8 +2499,8 @@ class MaskRCNN():
         masks: [H, W, N] instance binary masks
         """
 
-        print("## model detect length of images", len(images))
-        print("## model detect BATCH size", self.config.BATCH_SIZE  )
+        #print("## model detect length of images", len(images))
+        #print("## model detect BATCH size", self.config.BATCH_SIZE  )
         
 
         assert self.mode == "inference", "Create model in inference mode."

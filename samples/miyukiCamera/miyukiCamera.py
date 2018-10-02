@@ -35,9 +35,9 @@ import numpy as np
 import skimage.draw
 
 # Root directory of the project
-#ROOT_DIR = os.path.abspath("../../")
+ROOT_DIR = os.path.abspath("../../")
 # define abosolute path
-ROOT_DIR = "/Users/donchan/Documents/Miyuki/Mask_RCNN"
+#ROOT_DIR = "/Users/donchan/Documents/Miyuki/Mask_RCNN"
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
@@ -177,7 +177,8 @@ class MiyukiCameraDataset(utils.Dataset):
         """
         # If not a balloon dataset image, delegate to parent class.
         image_info = self.image_info[image_id]
-        print("## image info source ", image_info["source"])
+        #print("## image info source ", image_info["source"])
+        
         if image_info["source"] != "miyukiCamera":
             return super(self.__class__, self).load_mask(image_id)
 
@@ -203,8 +204,8 @@ class MiyukiCameraDataset(utils.Dataset):
             ############# 
 
 
-            print("# index #", i, p["name"])
-            print(p)
+            #print("# index #", i, p["name"])
+            #print(p)
 
             #
             #  keep only polygons object id from polygons json data..
@@ -219,9 +220,9 @@ class MiyukiCameraDataset(utils.Dataset):
             
             if i in polygons_objects_id:
                 names.append(a["classification"])
-                print("info object of image_info : ", a)
+                #print("info object of image_info : ", a)
             else: 
-                print("info object is NOT polygons --> %s " %  a["classification"]  )
+                #print("info object is NOT polygons --> %s " %  a["classification"]  )
 
 
         class_ids = np.array([self.class_names.index(n) for n in names])
@@ -350,8 +351,9 @@ if __name__ == '__main__':
                         metavar="<command>",
                         help="'train' or 'splash'")
     parser.add_argument('--dataset', required=False,
-                        metavar="/path/to/balloon/dataset",
-                        help='Directory of the Balloon dataset')
+                        metavar="/path/to/datadir",
+                        default="/home/donchan/Documents/Miyuki/MaskRCNN_data/datasets/miyukiCamera",
+                        help='Directory of the MiyukiCamera dataset')
     parser.add_argument('--weights', required=True,
                         metavar="/path/to/weights.h5",
                         help="Path to weights .h5 file or 'coco'")
@@ -380,9 +382,9 @@ if __name__ == '__main__':
 
     # Configurations
     if args.command == "train":
-        config = Cats_DogsConfig()
+        config = MiyukiCameraConfig()
     else:
-        class InferenceConfig(Cats_DogsConfig):
+        class InferenceConfig(MiyukiCameraConfig):
             # Set batch size to 1 since we'll be running inference on
             # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
             GPU_COUNT = 1
