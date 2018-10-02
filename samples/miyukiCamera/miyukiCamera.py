@@ -86,7 +86,11 @@ class MiyukiCameraConfig(Config):
 
 class MiyukiCameraDataset(utils.Dataset):
 
-    def load_classObjects(self, dataset_dir, subset):
+
+    def __init__(self, class_map=None):
+
+        super(self.__class__, self).__init__(class_map)
+
         """Load a subset of the Balloon dataset.
         dataset_dir: Root directory of the dataset.
         subset: Subset to load: train or val
@@ -99,12 +103,13 @@ class MiyukiCameraDataset(utils.Dataset):
         self.add_class("miyukiCamera", 5, "money")
         self.add_class("miyukiCamera", 6, "cointab")
         self.add_class("miyukiCamera", 7, "hair")
-        
-        
+
+    def load_classObjects(self, dataset_dir, subset):
+                
         # Train or validation dataset?
         assert subset in ["train", "val"]
         dataset_dir = os.path.join(dataset_dir, subset)
-        print(dataset_dir)
+        print("# load_classObjects(MiyukiCameraDataset) dataset_dir -> # ",dataset_dir)
 
 
         # Load annotations
@@ -178,7 +183,6 @@ class MiyukiCameraDataset(utils.Dataset):
         # If not a balloon dataset image, delegate to parent class.
         image_info = self.image_info[image_id]
         #print("## image info source ", image_info["source"])
-        
         if image_info["source"] != "miyukiCamera":
             return super(self.__class__, self).load_mask(image_id)
 
@@ -285,6 +289,29 @@ def color_splash(image, mask):
     return splash
 
 
+def detectObjects(model, dataset, image_path=None, video_path=None):
+
+    #
+    # first priority = find prescription from image
+    #
+
+    print("Running on {}".format(args.image))
+    # Read image
+    image = skimage.io.imread(args.image)
+    # Detect objects
+    results = model.detect([image], verbose=1)
+    r = results[0]
+
+    print("- " * 40 )
+    print("Scores --> ",  r['scores'])
+    print("found Class Names --> ", [dataset.class_info[i]["name"]  for i in r['class_ids']] )  
+
+    classes = [dataset.class_info[i]["name"]  for i in r['class_ids']]
+
+    if "prescription" in classes:
+        print("found prescription on %s" % image_path.split("/")[-1])
+
+
 def detect_and_color_splash(model, image_path=None, video_path=None):
     assert image_path or video_path
 
@@ -349,7 +376,7 @@ if __name__ == '__main__':
         description='Train Mask R-CNN to detect balloons.')
     parser.add_argument("command",
                         metavar="<command>",
-                        help="'train' or 'splash'")
+                        help="'train' or 'detect'")
     parser.add_argument('--dataset', required=False,
                         metavar="/path/to/datadir",
                         default="/home/donchan/Documents/Miyuki/MaskRCNN_data/datasets/miyukiCamera",
@@ -372,7 +399,7 @@ if __name__ == '__main__':
     # Validate arguments
     if args.command == "train":
         assert args.dataset, "Argument --dataset is required for training"
-    elif args.command == "splash":
+    elif args.command == "detect":
         assert args.image or args.video,\
                "Provide --image or --video to apply color splash"
 
@@ -408,7 +435,9 @@ if __name__ == '__main__':
             utils.download_trained_weights(weights_path)
     elif args.weights.lower() == "last":
         # Find last trained weights
-        weights_path = model.find_last()[1]
+        #weights_path = model.find_last()[1]
+        weights_path = model.find_last()
+        
     elif args.weights.lower() == "imagenet":
         # Start from ImageNet trained weights
         weights_path = model.get_imagenet_weights()
@@ -429,9 +458,12 @@ if __name__ == '__main__':
     # Train or evaluate
     if args.command == "train":
         train(model)
-    elif args.command == "splash":
-        detect_and_color_splash(model, image_path=args.image,
+    elif args.command == "detect":
+
+        dataset = MiyukiCameraDataset()
+
+        detectObjects(model, dataset, image_path=args.image,
                                 video_path=args.video)
     else:
         print("'{}' is not recognized. "
-              "Use 'train' or 'splash'".format(args.command))
+              "Use 'train' or 'detect'".format(args.command))

@@ -1262,11 +1262,10 @@ def load_image_gt(dataset, config, image_id, augment=False, augmentation=None,
     # and here is to filter them out
     _idx = np.sum(mask, axis=(0, 1)) > 0
 
-    print("## model / load_image_gt ##")
-    print(" image_id",image_id)
+    #print("## model / load_image_gt ##")
+    #print(" image_id",image_id)
     #print(" idx ", _idx)
     #print(" class_ids ", class_ids)
-
 
     mask = mask[:, :, _idx]
     class_ids = class_ids[_idx]
@@ -2097,6 +2096,9 @@ class MaskRCNN():
             raise FileNotFoundError(
                 errno.ENOENT, "Could not find weight files in {}".format(dir_name))
         checkpoint = os.path.join(dir_name, checkpoints[-1])
+
+        print("# loading last model file.", checkpoint)
+        
         return checkpoint
 
     def load_weights(self, filepath, by_name=False, exclude=None):
