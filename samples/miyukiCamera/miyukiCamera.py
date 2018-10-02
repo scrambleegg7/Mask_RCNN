@@ -68,7 +68,7 @@ class MiyukiCameraConfig(Config):
     IMAGES_PER_GPU = 2
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 7  # Background 
+    NUM_CLASSES = 1 + 12  # Background 
 
     # drug / sheets / prescription / money / hands
 
@@ -103,6 +103,13 @@ class MiyukiCameraDataset(utils.Dataset):
         self.add_class("miyukiCamera", 5, "money")
         self.add_class("miyukiCamera", 6, "cointab")
         self.add_class("miyukiCamera", 7, "hair")
+
+        self.add_class("miyukiCamera", 8, "documents")
+        self.add_class("miyukiCamera", 9, "notes")
+        self.add_class("miyukiCamera", 10, "envelope")
+        self.add_class("miyukiCamera", 11, "insurance")
+        self.add_class("miyukiCamera", 12, "receipt")
+        
 
     def load_classObjects(self, dataset_dir, subset):
                 
@@ -225,8 +232,7 @@ class MiyukiCameraDataset(utils.Dataset):
             if i in polygons_objects_id:
                 names.append(a["classification"])
                 #print("info object of image_info : ", a)
-            else: 
-                #print("info object is NOT polygons --> %s " %  a["classification"]  )
+            
 
 
         class_ids = np.array([self.class_names.index(n) for n in names])
