@@ -19,6 +19,7 @@ from glob import glob
 import argparse
 import skimage
 import shutil
+import skimage
 
 from cv2 import imshow
 
@@ -166,7 +167,8 @@ def videopipeline():
 
         #imshow("frameDelta", frameDelta)
         #imshow("thresh", thresh)
-        imshow("marked", frame)
+        resize_frame = skimage.transform.resize(frame, (300,480) )
+        imshow("marked", resize_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break     
