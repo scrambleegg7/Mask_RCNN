@@ -31,6 +31,7 @@ from mrcnn.model import log
 
 #from samples.cats_dogs import cats_dogs
 from samples.miyukiCamera import miyukiCamera
+from samples.miyukiCamera import my_visualize
 
 
 # Directory to save logs and trained model
@@ -82,7 +83,7 @@ def detector(model,config, dataset, DATA_DIR):
     print("* total length of images : ", len(images) )
 
 
-    for f in images:
+    for f in images[:5]:
 
         print("Running on {}".format(f))
         # Read image
@@ -91,16 +92,21 @@ def detector(model,config, dataset, DATA_DIR):
         results = model.detect([image], verbose=1)
         r = results[0]
 
-        print("- " * 40 )
-        print("Scores --> ",  r['scores'])
-        print("found Class Names --> ", [dataset.class_info[i]["name"]  for i in r['class_ids']] )  
+        class_names = [dataset.class_info[i]["name"]  for i in r['class_ids']]
 
-        classes = [dataset.class_info[i]["name"]  for i in r['class_ids']]
+        on_display_image = my_visualize.display_instances(dataset, image, r['rois'], r['masks'], r['class_ids'], 
+                            class_names, r['scores'])
 
-        if "prescription" in classes:
-            print("found prescription on %s" % f.split("/")[-1])
-            image_file = f.split("/")[-1]
-            shutil.copy( f,  os.path.join( MRCNN_DATA_DIR, image_file )  )
+
+        #plt.imshow(on_display_image)
+        #plt.show()
+
+        image_file = f.split("/")[-1]
+        image_file = os.path.join( "/Users/donchan/Documents/Miyuki/ssd_prescription/results/mrcnn_image", image_file )
+        print("saved filename:", image_file)
+
+
+        skimage.io.imsave( image_file , on_display_image)
 
 
 
