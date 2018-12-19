@@ -51,7 +51,7 @@ def process():
     # Useful if you're training a model on the same 
     # machine, in which case use CPU and leave the
     # GPU for training.
-    DEVICE = "/cpu:0"  # /cpu:0 or /gpu:0
+    DEVICE = "/gpu:0"  # /cpu:0 or /gpu:0
 
     # Inspect the model in training or inference modes
     # values: 'inference' or 'training'
@@ -72,18 +72,18 @@ def process():
 
     return model, config
 
-def detector(model,config, dataset, DATA_DIR):
+def detector(model,config, dataset, DATA_DIR, result):
 
-    MRCNN_DATA_DIR = "/".join(  DATA_DIR.split('/')[:-1] )
-    MRCNN_DATA_DIR = os.path.join( MRCNN_DATA_DIR, "mrcnn_image")
-    print(MRCNN_DATA_DIR)
-    
+    #MRCNN_DATA_DIR = "/".join(  DATA_DIR.split('/')[:-1] )
+    #MRCNN_DATA_DIR = os.path.join( MRCNN_DATA_DIR, "mrcnn_image")
+    print("Target Directory", DATA_DIR)
+
     images = glob( os.path.join(DATA_DIR, "*.jpg")   ) 
 
     print("* total length of images : ", len(images) )
 
 
-    for f in images[:5]:
+    for f in images:
 
         print("Running on {}".format(f))
         # Read image
@@ -100,17 +100,12 @@ def detector(model,config, dataset, DATA_DIR):
 
         #plt.imshow(on_display_image)
         #plt.show()
-
         image_file = f.split("/")[-1]
-        image_file = os.path.join( "/Users/donchan/Documents/Miyuki/ssd_prescription/results/mrcnn_image", image_file )
+        image_file = os.path.join( result, image_file )
         print("saved filename:", image_file)
 
 
         skimage.io.imsave( image_file , on_display_image)
-
-
-
-
 
 def main():
 
@@ -120,18 +115,21 @@ def main():
     parser.add_argument('--dataset', required=True,
                         metavar="/path/to/balloon/dataset",
                         help='Directory of the target dataset to detect')
-    
+    parser.add_argument('--result', required=True,
+                        metavar="/path/to/balloon/dataset",
+                        help='Directory of result image (colored).')
+
     args = parser.parse_args()
 
-    assert args.dataset ,\
-            "Provide --image directory to apply detector"
+    assert args.dataset or args.result ,\
+            "Provide --dataset directory to apply detector and --result for saving result images."
 
     model, config = process()
 
     dataset = miyukiCamera.MiyukiCameraDataset()
     DATA_DIR = args.dataset
 
-    detector(model, config, dataset, DATA_DIR)
+    detector(model, config, dataset, DATA_DIR, args.result)
 
 
 if __name__ == "__main__":
